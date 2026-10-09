@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrightSmile Dental Clinic</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; }
+  header { background: #0ea5e9; color: #fff; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 22px; }
+  nav a { color: #fff; margin-left: 20px; text-decoration: none; font-size: 14px; }
+  .hero { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; padding: 70px 32px; text-align: center; }
+  .hero h2 { font-size: 38px; margin-bottom: 12px; }
+  .hero p { font-size: 17px; opacity: .92; max-width: 560px; margin: 0 auto 24px; }
+  .hero .cta { background: #fff; color: #0284c7; border: none; padding: 13px 30px; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; padding: 48px 32px; max-width: 1000px; margin: 0 auto; }
+  .card { border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px; background: #fff; }
+  .card h3 { font-size: 17px; margin-bottom: 8px; color: #0284c7; }
+  .card p { font-size: 14px; color: #64748b; line-height: 1.55; }
+  .hours { background: #f0f9ff; padding: 44px 32px; text-align: center; }
+  .hours h2 { margin-bottom: 14px; }
+  .hours table { margin: 0 auto; font-size: 15px; border-collapse: collapse; }
+  .hours td { padding: 6px 22px; }
+  footer { background: #0f172a; color: #94a3b8; text-align: center; padding: 22px; font-size: 13px; }
+  .demo-note { background: #fef9c3; border-bottom: 1px solid #fde68a; color: #713f12; text-align: center; padding: 10px 16px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="demo-note">Demo site for the Embeddable AI Chatbot widget. Click the chat bubble (bottom right) and ask about services, hours or booking.</div>
+<header>
+  <h1>BrightSmile Dental Clinic</h1>
+  <nav><a href="#">Home</a><a href="#">Services</a><a href="#">About</a><a href="#">Contact</a></nav>
+</header>
+<section class="hero">
+  <h2>A healthier smile starts here</h2>
+  <p>Gentle, modern dentistry for the whole family. Same-week appointments available.</p>
+  <button class="cta" onclick="document.querySelector('.aicb-btn').click()">Chat with us</button>
+</section>
+<section class="services">
+  <div class="card"><h3>Cleaning &amp; Checkup</h3><p>Full exam, scaling and polish. From $49. Recommended every 6 months.</p></div>
+  <div class="card"><h3>Teeth Whitening</h3><p>Professional in-office whitening, up to 8 shades brighter in one visit. $149.</p></div>
+  <div class="card"><h3>Braces &amp; Aligners</h3><p>Metal, ceramic and clear aligner options for teens and adults. Free consultation.</p></div>
+  <div class="card"><h3>Dental Implants</h3><p>Permanent tooth replacement with 3D-guided placement. From $899 per implant.</p></div>
+</section>
+<section class="hours">
+  <h2>Opening hours</h2>
+  <table>
+    <tr><td>Monday - Friday</td><td>9:00 AM - 6:00 PM</td></tr>
+    <tr><td>Saturday</td><td>10:00 AM - 2:00 PM</td></tr>
+    <tr><td>Sunday</td><td>Closed (emergencies: call us)</td></tr>
+  </table>
+</section>
+<footer>BrightSmile Dental Clinic, 24 Main Street &middot; (555) 123-4567 &middot; Demo site for the Embeddable AI Chatbot project.</footer>
+
+<script>
+  window.AIChatbotConfig = {
+    business: "BrightSmile Dental Clinic",
+    welcome: "Hi! Welcome to BrightSmile Dental. Ask me about our services, prices, hours or booking an appointment.",
+    color: "#0ea5e9",
+    apiUrl: "/api/chat",
+    knowledge: [
+      "BrightSmile Dental Clinic is at 24 Main Street. Phone: (555) 123-4567.",
+      "Opening hours: Monday to Friday 9:00 AM to 6:00 PM, Saturday 10:00 AM to 2:00 PM, Sunday closed (call for emergencies).",
+      "Services and prices: Cleaning and checkup from $49 (exam, scaling, polish). Teeth whitening $149 (up to 8 shades brighter in one visit). Braces and clear aligners for teens and adults, free consultation. Dental implants from $899 per implant with 3D-guided placement.",
+      "Booking: call (555) 123-4567 or use the contact form. Same-week appointments are usually available. New patients should arrive 15 minutes early with ID and insurance details.",
+      "We accept most major insurance plans and offer payment plans for treatments over $300.",
+      "For dental emergencies (severe pain, knocked-out tooth), call us immediately - we reserve same-day emergency slots every weekday morning."
+    ].join(" ")
+  };
+</script>
+<script src="/widget.js"></script>
+</body>
+</html>
