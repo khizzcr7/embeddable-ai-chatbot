@@ -12,21 +12,31 @@ Get a free key at https://aistudio.google.com/app/apikey
 
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import httpx
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parent
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash").strip()
-GEMINI_URL = (
-    f"https://generativelanguage.googleapis.com/v1beta/models/"
-    f"{GEMINI_MODEL}:generateContent"
-)
+
+
+def model_candidates():
+    """Preferred model first, then fallbacks. Google retires model names for
+    new accounts, so we try each until one answers instead of failing."""
+    fallbacks = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.8-flash"]
+    seen = set()
+    out = []
+    for m in [GEMINI_MODEL, *fallbacks]:
+        if m and m not in seen:
+            seen.add(m)
+            out.append(m)
+    return out
+
 
 FALLBACK_REPLY = (
     "I don't have that detail on hand, but I'll have someone from the team "
@@ -79,25 +89,42 @@ def build_prompt(req: ChatRequest) -> str:
 
 
 async def ask_gemini(prompt: str) -> str:
+    last_error = "no models attempted"
     async with httpx.AsyncClient(timeout=30.0) as client:
-        resp = await client.post(
-            GEMINI_URL,
-            params={"key": GEMINI_API_KEY},
-            json={
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "temperature": 0.3,
-                    "maxOutputTokens": 300,
-                },
-            },
-        )
-    if resp.status_code != 200:
-        raise RuntimeError(f"Gemini API error {resp.status_code}: {resp.text[:200]}")
-    data = resp.json()
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-    except (KeyError, IndexError, TypeError) as exc:
-        raise RuntimeError(f"Unexpected Gemini response shape: {exc}")
+        for model in model_candidates():
+            url = (
+                "https://generativelanguage.googleapis.com/v1beta/models/"
+                f"{model}:generateContent"
+            )
+            try:
+                resp = await client.post(
+                    url,
+                    params={"key": GEMINI_API_KEY},
+                    json={
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "generationConfig": {
+                            "temperature": 0.3,
+                            "maxOutputTokens": 300,
+                        },
+                    },
+                )
+            except Exception as exc:
+                last_error = f"{model}: network error {exc}"
+                continue
+            if resp.status_code == 404:
+                # Model not available on this account - try the next one.
+                last_error = f"{model}: {resp.text[:160]}"
+                continue
+            if resp.status_code != 200:
+                raise RuntimeError(
+                    f"Gemini API error {resp.status_code}: {resp.text[:200]}"
+                )
+            data = resp.json()
+            try:
+                return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            except (KeyError, IndexError, TypeError) as exc:
+                raise RuntimeError(f"Unexpected Gemini response shape: {exc}")
+    raise RuntimeError(f"All Gemini models failed. Last error: {last_error}")
 
 
 @app.get("/health")
